@@ -53,7 +53,7 @@ This project was built using a modern, Python-based data science and AI stack.
 To clone and run this project locally, you will need Python and Pip installed. Follow these steps:
 
 1. Clone the repository:
-git clone [https://github.com/YOUR_USERNAME/AI-Stock-Analyzer.git](https://github.com/YOUR_USERNAME/AI-Stock-Analyzer.git)
+git clone [https://github.com/YOUR_USERNAME/AI-Stock-Analyzer.git](https://github.com/navYadav20/AI-Stock-Analyzer-Forecasting.git)
 
 2. Navigate to the project directory: `cd AI-Stock-Analyzer`
 
