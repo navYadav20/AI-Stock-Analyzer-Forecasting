@@ -1,0 +1,9 @@
+pandas
+numpy
+yfinance
+plotly
+streamlit
+requests
+beautifulsoup4
+google-generativeai
+statsmodels

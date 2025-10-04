@@ -1,0 +1,120 @@
+import streamlit as st
+import plotly.graph_objects as go
+import pandas as pd  # Import pandas for Timedelta
+
+# Import our custom modules
+from stock_analyzer import get_stock_data, compute_arima_forecast, run_agentic_watchdog
+from gemini_utils import get_gemini_analysis, API_CONFIGURED
+
+# --- Page Configuration ---
+st.set_page_config(page_title="Agentic Stock Analyzer", page_icon="🤖", layout="wide")
+
+# --- UI Layout ---
+st.title("🤖 Agentic Stock Analyzer")
+st.markdown("An intelligent tool combining AI analysis, agentic monitoring, and statistical forecasting.")
+
+# Sidebar form for input
+with st.sidebar.form(key="ticker_form"):
+    st.header("Controls")
+    ticker_in = st.text_input("Enter Stock Ticker (e.g., RELIANCE.NS, AAPL)", "RELIANCE.NS").upper()
+    submit_button = st.form_submit_button("Run Full Analysis")
+    st.info("For Indian stocks on NSE, add '.NS'. For US stocks, use the symbol directly.", icon="💡")
+
+# --- Data Loading and State Management ---
+if submit_button and ticker_in:
+    with st.spinner(f"Downloading data for {ticker_in}..."):
+        hist, info, headlines = get_stock_data(ticker_in)
+    if hist is None or hist.empty:
+        st.sidebar.error(f"Could not retrieve data for '{ticker_in}'.")
+    else:
+        st.session_state.hist = hist
+        st.session_state.info = info
+        st.session_state.headlines = headlines
+        st.session_state.ticker = ticker_in
+        st.success(f"Data loaded for {ticker_in}.")
+
+# --- Main Content Display ---
+if 'hist' not in st.session_state:
+    st.info("Enter a stock ticker in the sidebar and click 'Run Full Analysis' to begin.")
+    if not API_CONFIGURED:
+        st.warning("Gemini API not configured. AI summaries will be unavailable. Add GEMINI_API_KEY to secrets.toml.")
+else:
+    hist = st.session_state.hist
+    info = st.session_state.info
+    headlines = st.session_state.headlines
+    ticker = st.session_state.ticker
+    company_name = info.get("longName", ticker)
+
+    st.header(f"{company_name} Dashboard ({ticker})")
+    tab1, tab2, tab3 = st.tabs(["🤖 AI Agent Watchdog", "📈 Forecasting", "💡 Fundamental Analysis"])
+
+    with tab1:
+        st.subheader("Agent's On-Demand Report")
+        if st.button("Run Agent Watchdog", key=f"watchdog_{ticker}"):
+            with st.spinner("Agent is checking conditions..."):
+                findings = run_agentic_watchdog(hist, info, headlines)
+                st.session_state.findings = findings
+
+        if 'findings' in st.session_state and st.session_state.get('ticker') == ticker:
+            for finding in st.session_state.findings:
+                st.markdown(f"- {finding}")
+
+        if headlines:
+            with st.expander("Recent headlines"):
+                st.write("\n".join(f"- {h}" for h in headlines))
+
+    with tab2:
+        st.subheader("Short-Term Price Projection (ARIMA Model)")
+        period = st.select_slider("Select forecast horizon:", ["1 Month", "3 Months", "6 Months"], value="3 Months")
+        days = {"1 Month": 21, "3 Months": 63, "6 Months": 126}[period]
+
+        if st.button("Generate Forecast", key=f"forecast_{ticker}"):
+            with st.spinner(f"Forecasting next {period}..."):
+                fc_df = compute_arima_forecast(hist, steps=days)
+                st.session_state.forecast_df = fc_df
+
+        if 'forecast_df' in st.session_state and st.session_state.get('ticker') == ticker:
+            fc_df = st.session_state.forecast_df
+
+            # --- FIX for FutureWarning ---
+            # Replace the deprecated `.last()` method with modern `.loc` slicing
+            start_date = hist.index[-1] - pd.Timedelta(days=180)
+            hist_plot = hist.loc[hist.index >= start_date, "Close"]
+
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(x=hist_plot.index, y=hist_plot.values, name="Recent History"))
+            fig.add_trace(go.Scatter(x=fc_df.index, y=fc_df["predicted"], name="Forecast", line=dict(dash="dash")))
+            fig.add_trace(go.Scatter(x=list(fc_df.index) + list(fc_df.index[::-1]),
+                                     y=list(fc_df["upper"]) + list(fc_df["lower"][::-1]), fill="toself",
+                                     fillcolor="rgba(0,100,80,0.1)", line=dict(color="rgba(255,255,255,0)"),
+                                     hoverinfo="skip", showlegend=False))
+            fig.update_layout(title=f"Price Forecast for next {period}", yaxis_title="Price")
+            st.plotly_chart(fig, use_container_width=True)
+
+            # --- ADDED BACK: Forecast table and download button ---
+            st.subheader("Forecast Data (Preview)")
+            # Format the dataframe for better display
+            display_df = fc_df.reset_index().rename(columns={"index": "date"})
+            display_df["date"] = display_df["date"].dt.strftime("%Y-%m-%d")
+            st.dataframe(display_df.head(15), use_container_width=True)
+
+            csv = display_df.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                label="Download Forecast as CSV",
+                data=csv,
+                file_name=f"{ticker}_forecast_{period}.csv",
+                mime="text/csv",
+            )
+            # --- END of added code ---
+
+    with tab3:
+        st.subheader("Long-Term Outlook (Gemini AI)")
+        if st.button("Generate Long-Term Outlook", key=f"long_outlook_{ticker}"):
+            with st.spinner("Gemini is preparing the analysis..."):
+                prompt = f"Act as a senior financial analyst. Provide a concise 1-3 year investment outlook for {company_name} ({ticker}). Structure as a 2-line summary, then pros/cons bullet points. Limit to ~300 words."
+                st.session_state.long_outlook = get_gemini_analysis(prompt)
+
+        if 'long_outlook' in st.session_state and st.session_state.get('ticker') == ticker:
+            st.markdown(st.session_state.long_outlook)
+            st.info("This is AI-generated and for informational purposes only. Not financial advice.", icon="ℹ️")
+
