@@ -1,6 +1,6 @@
 Python virtual environment
 venv/
-pycache/
+__pycache__/
 
 IDE configuration files
 .idea/
