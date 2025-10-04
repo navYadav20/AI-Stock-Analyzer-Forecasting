@@ -2,22 +2,22 @@
 An intelligent stock analysis dashboard powered by Python, Streamlit, and the Gemini API. This tool uses an AI agent for real-time signal monitoring, ARIMA for statistical forecasting, and AI-driven analysis for long-term outlooks. Supports both NASDAQ and NSE stocks to provide clear, actionable insights.
 
 
-[View Live Demo]([https://earthquake-visualizer-sand.vercel.app/](https://ai-stock-analyzer-forecasting-lq3u6u6yvpss3hdbv7zxhh.streamlit.app/)) 👈
+[View Live Demo](https://ai-stock-analyzer-forecasting-lq3u6u6yvpss3hdbv7zxhh.streamlit.app/) 👈
 
 ![alt text](image.png)
 
 ## `About The Project`
 This project was developed to provide investors with a modern, AI-enhanced tool that goes beyond simple price charts. Traditional analysis often requires juggling multiple sources and tools. This application consolidates key analytical functions into a single, user-friendly dashboard.
 
-The AI Stock Analyzer fetches real-time and historical stock data, then applies a three-pronged analysis:
+- The AI Stock Analyzer fetches real-time and historical stock data, then applies a three-pronged analysis:
 
-An AI Agent actively monitors for important technical signals.
+- An AI Agent actively monitors for important technical signals.
 
-A Statistical Model provides short-term price forecasts.
+- A Statistical Model provides short-term price forecasts.
 
-A Generative AI offers a qualitative long-term outlook.
+- A Generative AI offers a qualitative long-term outlook.
 
-The result is a comprehensive dashboard that supports both US (NASDAQ) and Indian (NSE) markets, empowering users to make better-informed investment decisions.
+- The result is a comprehensive dashboard that supports both US (NASDAQ) and Indian (NSE) markets, empowering users to make better-informed investment decisions.
 
 ## `Core Features`
 AI Agent Watchdog: Proactively scans for and reports on key market signals at the click of a button:
@@ -62,11 +62,7 @@ git clone [https://github.com/YOUR_USERNAME/AI-Stock-Analyzer.git](https://githu
 4. Install required packages: `pip install -r requirements.txt`
 
 5. Set up your API Key ): Create a folder named `.streamlit` in the project root.
- Inside .streamlit, create a file named secrets.toml.
-
-Add your API key to this file:
-
-GEMINI_API_KEY = "YOUR_API_KEY_HERE"
+ Inside .streamlit, create a file named secrets.toml. Add your API key to this file:
 
 6. Run the application: `streamlit run app.py`
 
