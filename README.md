@@ -4,7 +4,6 @@ An intelligent stock analysis dashboard powered by Python, Streamlit, and the Ge
 
 [View Live Demo](https://ai-stock-analyzer-forecasting-lq3u6u6yvpss3hdbv7zxhh.streamlit.app/) 👈
 
-![alt text](image.png)
 
 ## `About The Project`
 This project was developed to provide investors with a modern, AI-enhanced tool that goes beyond simple price charts. Traditional analysis often requires juggling multiple sources and tools. This application consolidates key analytical functions into a single, user-friendly dashboard.
@@ -28,7 +27,7 @@ AI Agent Watchdog: Proactively scans for and reports on key market signals at th
 
 - Trend analysis via Golden Cross and Death Cross (50-day vs. 200-day SMA) detections.
 
-- AI-Powered News Sentiment: Leverages the Google Gemini API to analyze recent headlines and provide a concise, detailed sentiment summary (Positive, Neutral, or Negative) with reasoning.
+- AI-Powered News Sentiment: Leverages the Google Gemini API to analyze recent headlines and provide a concise, detailed sentiment summary with reasoning.
 
 - Statistical Forecasting: Utilizes an ARIMA ML model to generate short-term price projections for the next 1, 3, or 6 months, complete with confidence intervals visualized on an interactive chart.
 
